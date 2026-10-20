@@ -2,9 +2,9 @@ name: Cafe CI/CD
 
 on:
   push:
-    branches: [master]
+    branches: [Master]
   pull_request:
-    branches: [master]
+    branches: [Master]
 
 permissions:
   contents: read
