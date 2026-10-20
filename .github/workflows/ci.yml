@@ -1,18 +1,49 @@
-name: Cafe CI
+name: Cafe CI/CD
 
 on:
   push:
-    branches: [Master]
+    branches: [master]
   pull_request:
-    branches: [Master]
+    branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
-  check-website:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Download repository code
         uses: actions/checkout@v4
 
-      - name: Check homepage exists
+      - name: Test homepage
         run: test -f index.html
+
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
+      - name: Package website
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4
